@@ -16,7 +16,6 @@ enum TokenType {
 struct Token {
     TokenType type;
     std::string value;
-    int line;
 };
 
 struct LocationBlock {

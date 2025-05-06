@@ -55,24 +55,20 @@ std::vector<Token> ConfigParser::tokenize(const std::string& content) {
             if (word == "{") {
                 t.type = BRACE_OPEN;
                 t.value = word;
-                t.line = lineNum;
                 tokens.push_back(t);
             } else if (word == "}") {
                 t.type = BRACE_CLOSE;
                 t.value = word;
-                t.line = lineNum;
                 tokens.push_back(t);
             } else if (!word.empty() && word[word.size() - 1] == ';') {
                 std::string valuePart = word.substr(0, word.size() - 1);
                 if (!valuePart.empty()) {
                     t.type = VALUE;
                     t.value = valuePart;
-                    t.line = lineNum;
                     tokens.push_back(t);
                 }
                 t.type = SEMICOLON;
                 t.value = ";";
-                t.line = lineNum;
                 tokens.push_back(t);
             } else {
                 if (tokens.empty() || tokens[tokens.size() - 1].type == SEMICOLON || tokens[tokens.size() - 1].type == BRACE_OPEN)
@@ -80,7 +76,6 @@ std::vector<Token> ConfigParser::tokenize(const std::string& content) {
                 else
                     t.type = VALUE;
                 t.value = word;
-                t.line = lineNum;
                 tokens.push_back(t);
             }
         }
@@ -176,7 +171,6 @@ std::vector<Token> ConfigParser::filterNonLocationToken(const std::vector<Token>
                 throw std::runtime_error("Invalid location block syntax");
             }
         }
-
         if (insideLocation) {
             if (tok.type == BRACE_OPEN) braceDepth++;
             if (tok.type == BRACE_CLOSE) braceDepth--;

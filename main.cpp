@@ -11,14 +11,14 @@ int main() {
             std::cout << "--- Server Block #" << i << " ---" << std::endl;
             for (size_t j = 0; j < servers[i].configTokens.size(); ++j) {
                 const Token& t = servers[i].configTokens[j];
-                std::cout << "[ConfigToken] " << t.line << ": " << t.value << std::endl;
+                std::cout << "[ConfigToken] " << t.value << std::endl;
             }
 
             for (size_t k = 0; k < servers[i].locations.size(); ++k) {
                 std::cout << "  Location path: " << servers[i].locations[k].path << std::endl;
                 for (size_t l = 0; l < servers[i].locations[k].tokens.size(); ++l) {
                     const Token& t = servers[i].locations[k].tokens[l];
-                    std::cout << "    [LocationToken] " << t.line << ": " << t.value << std::endl;
+                    std::cout << "    [LocationToken] " << t.value << std::endl;
                 }
             }
         }
