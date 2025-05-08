@@ -1,6 +1,8 @@
 #ifndef CONFIGPARSER_HPP
 #define CONFIGPARSER_HPP
 
+#include "ServerConfig.hpp"
+#include "LocationConfig.hpp"
 #include <iostream>
 #include <vector>
 #include <string>
@@ -8,6 +10,7 @@
 #include <sstream>
 #include <cctype>
 #include <stdexcept>
+#include <cstdlib>
 
 enum TokenType {
     KEY, VALUE, BRACE_OPEN, BRACE_CLOSE, SEMICOLON
@@ -21,11 +24,6 @@ struct Token {
 struct LocationBlock {
     std::string path;
     std::vector<Token> tokens;
-};
-
-struct ServerConfig{
-    std::vector<Token> configTokens;
-    std::vector<LocationBlock> locations;
 };
 
 struct ServerBlock{
@@ -45,11 +43,13 @@ class ConfigParser{
     std::string readfile(const std::string& path);
     std::string removeComment(const std::string& content);
     std::string trimWhitespace(const std::string& content);
-    const std::vector<ServerConfig>& getServers() const;
     const std::vector<ServerBlock>& getParsedServers() const;
+    ServerConfig saveServerConfig(const std::vector<Token>& tokens);
+    LocationConfig saveLocationConfig(const LocationBlock& lb);
+    const std::vector<ServerConfig>& getServers() const;
 
     private:
-    std::vector<ServerBlock> servers;
+    std::vector<ServerConfig> servers;
     std::vector<ServerBlock> parsedServers;
 
 };

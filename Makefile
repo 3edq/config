@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
 NAME = config_parser
 
-SRCS = ConfigParser.cpp main.cpp
+SRCS = ConfigParser.cpp ServerConfig.cpp LocationConfig.cpp main.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 all: $(NAME)

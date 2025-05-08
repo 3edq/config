@@ -1,29 +1,34 @@
 #include "ConfigParser.hpp"
+#include <iostream>
 
 int main() {
     ConfigParser parser;
 
     try {
         parser.Parse("example.conf");
-        const std::vector<ServerBlock>& servers = parser.getParsedServers();
+        const std::vector<ServerConfig>& servers = parser.getServers();
 
         for (size_t i = 0; i < servers.size(); ++i) {
-            std::cout << "--- Server Block #" << i << " ---" << std::endl;
-            for (size_t j = 0; j < servers[i].configTokens.size(); ++j) {
-                const Token& t = servers[i].configTokens[j];
-                std::cout << "[ConfigToken] " << t.value << std::endl;
-            }
+            std::cout << "--- Server #" << i << " ---\n";
+            std::cout << "Port: " << servers[i].getPort() << "\n";
+            std::cout << "ServerName: " << servers[i].getServerName() << "\n";
 
-            for (size_t k = 0; k < servers[i].locations.size(); ++k) {
-                std::cout << "  Location path: " << servers[i].locations[k].path << std::endl;
-                for (size_t l = 0; l < servers[i].locations[k].tokens.size(); ++l) {
-                    const Token& t = servers[i].locations[k].tokens[l];
-                    std::cout << "    [LocationToken] " << t.value << std::endl;
-                }
+            const std::vector<LocationConfig>& locs = servers[i].getLocations();
+            for (size_t j = 0; j < locs.size(); ++j) {
+                std::cout << "  [Location] Path: " << locs[j].getPath() << "\n";
+                std::cout << "    Root: " << locs[j].getRoot() << "\n";
+                std::cout << "    Index: " << locs[j].getIndex() << "\n";
+                std::cout << "    Autoindex: " << (locs[j].getAutoindex() ? "on" : "off") << "\n";
+                std::cout << "    CGI Path: " << locs[j].getCgiPath() << "\n";
+                std::cout << "    MaxBodySize: " << locs[j].getMaxBodySize() << "\n";
+                std::cout << "    Methods: ";
+                for (size_t m = 0; m < locs[j].getMethods().size(); ++m)
+                    std::cout << locs[j].getMethods()[m] << " ";
+                std::cout << "\n";
             }
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    } catch (std::exception& e) {
+        std::cerr << "Config Error: " << e.what() << "\n";
     }
 
     return 0;
