@@ -70,8 +70,13 @@ std::vector<Token> ConfigParser::tokenize(const std::string& content) {
                 t.value = ";";
                 tokens.push_back(t);
             } else {
-                if (tokens.empty() || tokens[tokens.size() - 1].type == SEMICOLON || tokens[tokens.size() - 1].type == BRACE_OPEN)
+                if (tokens.empty()
+                || tokens[tokens.size()-1].type == SEMICOLON
+                || tokens[tokens.size()-1].type == BRACE_OPEN
+                || tokens[tokens.size()-1].type == BRACE_CLOSE)
+                {
                     t.type = KEY;
+                }
                 else
                     t.type = VALUE;
                 t.value = word;
@@ -180,6 +185,7 @@ std::vector<Token> ConfigParser::filterNonLocationToken(const std::vector<Token>
 
             if (braceDepth == 0) {
                 insideLocation = false;
+                result.push_back(tok);
                 continue;
             }
             continue;
@@ -222,6 +228,9 @@ ServerConfig ConfigParser::saveServerConfig(const std::vector<Token>& tokens) {
 
         std::string key = tokens[i].value;
 
+        if(key=="server"){
+            continue;
+        }
         if (key == "listen") {
             if (i + 2 >= tokens.size() || tokens[i + 1].type != VALUE || tokens[i + 2].type != SEMICOLON)
                 throw std::runtime_error("Invalid 'listen' directive syntax");
@@ -300,9 +309,9 @@ LocationConfig ConfigParser::saveLocationConfig(const LocationBlock& lb) {
             config.setUploadPath(tokens[i + 1].value);
             i += 2;
         }
-        else if (key == "client_max_body_size") {
+        else if (key == "max_body_size") {
             if (i + 2 >= tokens.size() || tokens[i + 1].type != VALUE || tokens[i + 2].type != SEMICOLON)
-                throw std::runtime_error("Invalid 'client_max_body_size' directive");
+                throw std::runtime_error("Invalid 'max_body_size' directive");
             config.setMaxBodySize(std::atoi(tokens[i + 1].value.c_str()));
             i += 2;
         }

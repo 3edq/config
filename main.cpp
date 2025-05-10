@@ -21,6 +21,7 @@ int main() {
                 std::cout << "    Autoindex: " << (locs[j].getAutoindex() ? "on" : "off") << "\n";
                 std::cout << "    CGI Path: " << locs[j].getCgiPath() << "\n";
                 std::cout << "    MaxBodySize: " << locs[j].getMaxBodySize() << "\n";
+                std::cout << "    Return: " << locs[j].getReturnCode() << " " << locs[j].getRedirectPath() <<"\n";
                 std::cout << "    Methods: ";
                 for (size_t m = 0; m < locs[j].getMethods().size(); ++m)
                     std::cout << locs[j].getMethods()[m] << " ";
