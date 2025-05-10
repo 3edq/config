@@ -41,11 +41,11 @@ std::string ConfigParser::trimWhitespace(const std::string& content){
     return result.str();
 }
 
+
 std::vector<Token> ConfigParser::tokenize(const std::string& content) {
     std::vector<Token> tokens;
     std::istringstream stream(content);
     std::string line;
-    int lineNum = 1;
 
     while (std::getline(stream, line)) {
         std::istringstream linestream(line);
@@ -71,43 +71,58 @@ std::vector<Token> ConfigParser::tokenize(const std::string& content) {
                 t.value = ";";
                 tokens.push_back(t);
             } else {
-                if (tokens.empty() || tokens[tokens.size() - 1].type == SEMICOLON || tokens[tokens.size() - 1].type == BRACE_OPEN)
+            if (tokens.empty()
+                || tokens[tokens.size()-1].type == SEMICOLON
+                || tokens[tokens.size()-1].type == BRACE_OPEN
+                || tokens[tokens.size()-1].type == BRACE_CLOSE)
+                {
                     t.type = KEY;
-                else
+                }
+                else {
                     t.type = VALUE;
+                }
                 t.value = word;
                 tokens.push_back(t);
             }
         }
-        ++lineNum;
     }
     return tokens;
 }
 
-std::vector<std::vector<Token> > ConfigParser::extractServerBlock(const std::vector<Token>& tokens){
-    std::vector<std::vector<Token> > block;
-    std::vector<Token> currentBlock;
-    int braceSize = 0;
-    int insideServer = false;
+std::vector<std::vector<Token> > ConfigParser::extractServerBlock(const std::vector<Token>& tokens) {
+    std::vector<std::vector<Token> > blocks;
+    size_t i = 0;
 
-    for(size_t i = 0;i < tokens.size(); ++i){
-        const Token& tok = tokens[i];
-        if(!insideServer && tok.type == KEY && tok.value == "server"){
-            insideServer = true;
-        }
-        if(insideServer){
-            currentBlock.push_back(tok);
-            if(tok.type == BRACE_OPEN) braceSize++;
-            if(tok.type == BRACE_CLOSE) braceSize--;
+    while (i < tokens.size()) {
+        // サーバー宣言を探す
+        if (tokens[i].type == KEY && tokens[i].value == "server") {
+            // 次が '{' かチェック
+            if (i + 1 < tokens.size() && tokens[i + 1].type == BRACE_OPEN) {
+                std::vector<Token> current;
+                current.push_back(tokens[i]);       // "server"
+                current.push_back(tokens[i + 1]);   // "{"
+                int depth = 1;
+                i += 2;  // '{' の分もスキップ
 
-            if(braceSize == 0&&tok.type == BRACE_CLOSE){
-                block.push_back(currentBlock);
-                currentBlock.clear();
-                insideServer = false;
+                while (i < tokens.size() && depth > 0) {
+                    current.push_back(tokens[i]);
+                    if (tokens[i].type == BRACE_OPEN)
+                        ++depth;
+                    else if (tokens[i].type == BRACE_CLOSE)
+                        --depth;
+                    ++i;
+                }
+
+                blocks.push_back(current);
+                continue;
+            } else {
+                throw std::runtime_error("Malformed server block: missing opening brace");
             }
         }
+        ++i;
     }
-    return block;
+
+    return blocks;
 }
 
 std::vector<LocationBlock> ConfigParser::extractLocationBlock(const std::vector<Token>& serverBlock){
@@ -189,6 +204,7 @@ void ConfigParser::Parse(const std::string& filepath){
     std::string noComment = removeComment(raw);
     std::string cleaned = trimWhitespace(noComment);
     std::vector<Token> tokens = tokenize(cleaned);
+
     std::vector<std::vector<Token> > serverBlocks = extractServerBlock(tokens);
     std::vector<ServerBlock> parsedServers;
 
