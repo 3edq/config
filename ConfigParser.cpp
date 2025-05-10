@@ -94,15 +94,13 @@ std::vector<std::vector<Token> > ConfigParser::extractServerBlock(const std::vec
     size_t i = 0;
 
     while (i < tokens.size()) {
-        // サーバー宣言を探す
         if (tokens[i].type == KEY && tokens[i].value == "server") {
-            // 次が '{' かチェック
             if (i + 1 < tokens.size() && tokens[i + 1].type == BRACE_OPEN) {
                 std::vector<Token> current;
-                current.push_back(tokens[i]);       // "server"
-                current.push_back(tokens[i + 1]);   // "{"
+                current.push_back(tokens[i]);
+                current.push_back(tokens[i + 1]);
                 int depth = 1;
-                i += 2;  // '{' の分もスキップ
+                i += 2;
 
                 while (i < tokens.size() && depth > 0) {
                     current.push_back(tokens[i]);
@@ -121,7 +119,6 @@ std::vector<std::vector<Token> > ConfigParser::extractServerBlock(const std::vec
         }
         ++i;
     }
-
     return blocks;
 }
 
